@@ -1,19 +1,37 @@
 const crawler = require("./src/crawler");
-const puppeteer = require("puppeteer");
+const scrapToFile = require("./src/io/scrap-to-file");
+const minimist = require("minimist");
+
+const dealWithArgs = () => {
+  try {
+    const args = minimist(process.argv.slice(2));
+    const urls = args._.filter(param => param && param.includes("http"));
+    if (args.help || args.h || !urls.length) {
+      throw new Error();
+    }
+    return { urls: urls, delay: args.delay || 0 };
+  } catch (error) {
+    console.log(`
+    Usage
+      $ node app.js --delay 1000 https://google.com https://github.com/
+
+    Options
+      --delay Time waited in the page before fetching the cookies`);
+
+    return process.exit(0);
+  }
+};
 
 (async () => {
-  const url = process.argv[2];
-  const delay = process.argv[3] || 1000;
-  if(!url){
-    throw new Error('Please provide a valid url');
-  }
+  const { delay, urls } = dealWithArgs();
 
-  const browser = await puppeteer.launch();
-  await crawler.crawl(url, {
-    cookiesWaitForTime: Number(delay),
-    browser
-  });
-  await browser.close();
+  const options = {
+    cookiesWaitForTime: Number(delay)
+  };
 
-  console.log('End');
+  const crawlers = urls.map(url => crawler.crawl(url, options));
+  const scrappedPages = await Promise.all(crawlers);
+  await scrapToFile.write(scrappedPages);
+
+  console.log("End");
 })();

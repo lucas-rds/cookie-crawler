@@ -11,9 +11,9 @@ const crawl = async (url, scrapOptions) => {
   }
 
   const scrappedPage = await pageScrapper.scrap(browser, url, scrapOptions);
-  console.log("scrappedPage:", scrappedPage);
 
   await browser.close();
+  return [ url, scrappedPage ];
 };
 
 module.exports = {
