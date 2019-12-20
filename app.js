@@ -4,7 +4,10 @@ const dealWithArgs = require("./args-dealer");
 
 
 (async () => {
-  let { delay, urls } = dealWithArgs();
+  // let { delay, urls } = dealWithArgs();
+
+  let delay = 0
+  let urls = ["https://www.r7.com/"]
 
   console.time("crawl");
   const options = {

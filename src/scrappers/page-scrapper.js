@@ -7,15 +7,11 @@ const defaultOptions = {
   childrenUrls: true
 };
 
-const scrap = async (browser, url, userOptions) => {
+const scrap = async (page, userOptions) => {
   let cookies;
-  let childrenUrls;
+  let childrenUrls = [];
 
   const options = { ...defaultOptions, ...userOptions };
-
-  const page = await browser.newPage();
-  await page.goto(url);
-
   if (options.cookies) {
     cookies = await cookiesScrapper.scrap(page, options.cookiesWaitForTime);
   }
