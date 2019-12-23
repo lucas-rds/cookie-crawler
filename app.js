@@ -7,7 +7,7 @@ const dealWithArgs = require("./args-dealer");
   // let { delay, urls } = dealWithArgs();
 
   let delay = 0
-  let urls = ["https://www.r7.com/"]
+  let urls = ["http://localhost:3000/1-1.html"]
 
   console.time("crawl");
   const options = {

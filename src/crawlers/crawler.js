@@ -1,7 +1,7 @@
 const pageCrawler = require("./page-crawler");
 const puppeteer = require("puppeteer");
 
-const CHUNK_SIZE = 20;
+const CHUNK_SIZE = 100;
 
 const getScrappedPagesChildrenUrls = crawledPages => {
   return crawledPages
@@ -29,6 +29,45 @@ const crawlSlices = async (urls, alreadyProcessedUrls, browser, options) => {
   return resolvedCawlers;
 };
 
+const crawlSlicesSync = async (urls, alreadyProcessedUrls, browser, options) => {
+  const notProcessedUrls = urls.filter(
+    url => !alreadyProcessedUrls.includes(url)
+  );
+
+  const crawlers = notProcessedUrls.map(url => pageCrawler.crawl(url, browser, options));
+  return await Promise.all(crawlers);
+};
+
+const crawlSlicesConcurrent = async (
+  urls,
+  alreadyProcessedUrls,
+  browser,
+  options
+) => {
+  const resolvedCawlers = [];
+  const notProcessedUrls = urls.filter(
+    url => !alreadyProcessedUrls.includes(url)
+  );
+
+  async function chain(promise) {
+    const url = notProcessedUrls.shift();
+    if (url) {
+      await promise;
+      return chain(
+        pageCrawler.crawl(url, browser, options).then(response => {
+          resolvedCawlers.push(response);
+        })
+      );
+    }
+    return promise;
+  }
+
+  const promises = new Array(300).fill(Promise.resolve());
+  await Promise.all(promises.map(chain));
+
+  return resolvedCawlers;
+};
+
 const crawl = async (urlsToCrawl, options) => {
   let crawlResult = [];
   let urls = [...urlsToCrawl];
@@ -48,7 +87,9 @@ const crawl = async (urlsToCrawl, options) => {
   const alreadyProcessedUrls = [];
 
   do {
-    crawledPages = await crawlSlices(
+    // crawledPages = await crawlSlicesConcurrent(
+    crawledPages = await crawlSlicesSync(
+      // crawledPages = await crawlSlices(
       urls,
       alreadyProcessedUrls,
       browser,
@@ -61,6 +102,9 @@ const crawl = async (urlsToCrawl, options) => {
     console.log(urls.length);
   } while (urls && urls.length);
 
+  console.log(`
+    Browser open pages: ${(await browser.pages()).length}
+  `);
   await browser.close();
 
   return crawlResult;
