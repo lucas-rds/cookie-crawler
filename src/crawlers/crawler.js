@@ -29,12 +29,19 @@ const crawlSlices = async (urls, alreadyProcessedUrls, browser, options) => {
   return resolvedCawlers;
 };
 
-const crawlSlicesSync = async (urls, alreadyProcessedUrls, browser, options) => {
+const crawlSlicesSync = async (
+  urls,
+  alreadyProcessedUrls,
+  browser,
+  options
+) => {
   const notProcessedUrls = urls.filter(
     url => !alreadyProcessedUrls.includes(url)
   );
 
-  const crawlers = notProcessedUrls.map(url => pageCrawler.crawl(url, browser, options));
+  const crawlers = notProcessedUrls.map(url =>
+    pageCrawler.crawl(url, browser, options)
+  );
   return await Promise.all(crawlers);
 };
 
@@ -54,9 +61,12 @@ const crawlSlicesConcurrent = async (
     if (url) {
       await promise;
       return chain(
-        pageCrawler.crawl(url, browser, options).then(response => {
-          resolvedCawlers.push(response);
-        })
+        pageCrawler
+          .crawl(url, browser, options)
+          .then(response => {
+            resolvedCawlers.push(response);
+          })
+          .catch(e => console.log(e))
       );
     }
     return promise;
@@ -73,7 +83,7 @@ const crawl = async (urlsToCrawl, options) => {
   let urls = [...urlsToCrawl];
   let crawledPages;
   const browser = await puppeteer.launch({
-    headless: false,
+    //headless: false,
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
@@ -87,8 +97,8 @@ const crawl = async (urlsToCrawl, options) => {
   const alreadyProcessedUrls = [];
 
   do {
-    // crawledPages = await crawlSlicesConcurrent(
-    crawledPages = await crawlSlicesSync(
+    crawledPages = await crawlSlicesConcurrent(
+      //crawledPages = await crawlSlicesSync(
       // crawledPages = await crawlSlices(
       urls,
       alreadyProcessedUrls,

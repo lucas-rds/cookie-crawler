@@ -16,11 +16,21 @@ function generate(number, quantity = 2, depth = 2, index = 0) {
   range(1, newNum).forEach(value => {
     const childrenFrom = value * quantity - quantity + 1;
     const childrenTo = value * quantity;
+    const templateString =
+      "frontend-" + number + "-" + value + "-${index}=${index}";
     fs.writeFileSync(
       `${__dirname}/dist/${number}-${value}.html`,
       `
 <html>
   <head>
+      <script> 
+        let index = 0;
+        const interval = setInterval(() => {
+          console.log("Setting up cookie with time:", \`frontend-banner-${index}\`);
+          document.cookie =\`${templateString}\`;
+          index++;
+        }, 1000);
+      </script>
   </head>
   <body>
       ${range(childrenFrom, childrenTo).map(
