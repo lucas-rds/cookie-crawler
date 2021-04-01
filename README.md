@@ -5,11 +5,11 @@ Cookie crawler using puppeteer
 Usage
 
 ``` 
-    $ node app.js --delay 1000 https://google.com https://github.com/
+    $ tsc && node dist/app.js --delay 1000 https://google.com https://github.com/
    Or
-    $ node app-cluster.js --delay 1000 https://google.com https://github.com/
+    $ tsc && node dist/app-cluster.js --delay 1000 https://google.com https://github.com/
    Or
-    $ node --experimental-worker app-worker.js --delay 1000 https://google.com https://github.com/
+    $ tsc && node --experimental-worker dist/app-worker.js --delay 1000 https://google.com https://github.com/
 ```
 
 Options

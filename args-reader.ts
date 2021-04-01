@@ -1,4 +1,4 @@
-const minimist = require("minimist");
+import minimist from "minimist";
 
 export type Args = {
   delay: number
