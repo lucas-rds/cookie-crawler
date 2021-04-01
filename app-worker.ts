@@ -1,7 +1,7 @@
-const { Worker } = require("worker_threads");
-const dealWithArgs = require("./args-reader");
+import { Worker } from 'worker_threads';
+import { Args, ArgsReader } from './args-reader';
 
-const { delay, urls } = dealWithArgs();
+const { delay, urls }: Args = new ArgsReader().read();
 
 urls.forEach(url => {
   const worker = new Worker("./app-service-worker.js", {
