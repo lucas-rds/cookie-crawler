@@ -1,7 +1,7 @@
 const cluster = require("cluster");
 const numCPUs = require("os").cpus().length;
 const crawler = require("./src/crawler");
-const dealWithArgs = require("./args-dealer");
+const dealWithArgs = require("./args-reader");
 
 if (cluster.isMaster) {
   const { delay, urls } = dealWithArgs();

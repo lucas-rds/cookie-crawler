@@ -1,5 +1,5 @@
 const { Worker } = require("worker_threads");
-const dealWithArgs = require("./args-dealer");
+const dealWithArgs = require("./args-reader");
 
 const { delay, urls } = dealWithArgs();
 
