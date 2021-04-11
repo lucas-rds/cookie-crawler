@@ -10,40 +10,35 @@ const range = (from, to) => {
   return array;
 };
 
-function generate(number, quantity = 2, depth = 2, index = 0) {
-  const newNum = number * quantity;
-  console.log(number, newNum);
-  range(1, newNum).forEach(value => {
-    const childrenFrom = value * quantity - quantity + 1;
-    const childrenTo = value * quantity;
-    const templateString =
-      "frontend-" + number + "-" + value + "-${index}=${index}";
+function generate(name, childName) {
+
+  range(1, 20).forEach(n => {
+    const inlineCookieString = `inline-cookie-${name}-${n}=true`;
+    const runtimeCookieString = "frontend-" + name + "-" + n + "-${runtimeIndex}=${runtimeIndex}";
     fs.writeFileSync(
-      `${__dirname}/dist/${number}-${value}.html`,
+      `${__dirname}/dist/${name}-${n}.html`,
       `
 <html>
   <head>
-      <script> 
-        let index = 0;
+      <script>
+        document.cookie=\`${inlineCookieString}\`;
+        let runtimeIndex = 0;
         const interval = setInterval(() => {
-          console.log("Setting up cookie with time:", \`frontend-banner-${index}\`);
-          document.cookie =\`${templateString}\`;
-          index++;
+          console.log("Setting up cookie with time:", \`frontend-banner-${name}\`);
+          document.cookie=\`${runtimeCookieString}\`;
+          runtimeIndex++;
         }, 1000);
       </script>
   </head>
   <body>
-      ${range(childrenFrom, childrenTo).map(
-        x => `<a href="${newNum}-${x}.html">${newNum}-${x}</a>`
+      ${range(1, 20).map(
+        x => `<a href="${childName}-${x}.html">${childName}-${x}</a><br/>`
       )}
   </body>
 </html>
   `
     );
   });
-  if (index < depth) {
-    generate(newNum, quantity, depth, ++index);
-  }
 }
 
 rimraf.sync(`${__dirname}/dist/`);
@@ -51,11 +46,14 @@ if (!fs.existsSync(`${__dirname}/dist/`)) {
   fs.mkdirSync(`${__dirname}/dist/`);
 }
 
-generate(1, 5, 3);
+generate("A", "B");
+generate("B", "C");
+generate("C", "D");
+generate("D", "A");
 
 const port = 3000;
 var app = express();
 app.use(express.static(__dirname + "/dist"));
-app.listen(port, function() {
+app.listen(port, function () {
   console.log(`http://localhost:${port}`);
 });

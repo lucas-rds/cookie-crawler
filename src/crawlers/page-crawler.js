@@ -12,11 +12,11 @@ const crawl = async (url, browser, scrapOptions) => {
     }
   });
 
-  await page.goto(url, { waitUntil: "networkidle2" });
+  await page.goto(url, { waitUntil: ["load", "networkidle0", "networkidle2"] });
   const scrappedPage = await pageScrapper.scrap(page, scrapOptions);
   await page.close();
 
-  return { url, data: scrappedPage };
+  return { ...scrappedPage, url };
 };
 
 module.exports = {
