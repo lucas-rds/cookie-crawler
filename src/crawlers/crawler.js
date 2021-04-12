@@ -1,8 +1,13 @@
 const pageCrawler = require("./page-crawler");
-const puppeteer = require("puppeteer");
+const puppeteer = require('puppeteer-extra')
+const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 const { saveIntoDB } = require("../database/database");
+const { fileLogger } = require("../logger");
+
+puppeteer.use(StealthPlugin())
 
 const CHUNK_SIZE = 100;
+
 
 // const crawlSlices = async (urls, alreadyProcessedUrls, browser, options) => {
 //   const resolvedCawlers = [];
@@ -55,10 +60,16 @@ const crawlSlicesConcurrent = async (
           })
           .then(response => {
             const page = { ...response, childrenUrls: [...new Set(response.childrenUrls)] }
-            saveIntoDB(page)
+            return saveIntoDB(page)
+          })
+          .then(page => {
+            fileLogger.info(page);
             return page;
           })
-          .catch(e => console.log(e))
+          .catch(e => {
+            fileLogger.error(e);
+            console.log(e)
+          })
       );
     }
     return promise;
@@ -70,11 +81,46 @@ const crawlSlicesConcurrent = async (
   return resolvedCawlers;
 };
 
-const getScrappedPagesChildrenUrls = crawledPages => {
-  return [...new Set(crawledPages
-    .filter(crawled => crawled && crawled.childrenUrls)
-    .flatMap(crawled => crawled.childrenUrls))];
-};
+
+
+const login = async (browser, username, password) => {
+
+  try {
+    const page = await browser.newPage();
+
+    await page.goto("https://g1.globo.com/", { waitUntil: ["load", "networkidle0", "networkidle2"] });
+
+    await page.click('a.barra-item-servico.barra-botao-entrar.barra-base-btn');
+    await page.waitForSelector('iframe');
+
+    const elementHandle = await page.$('iframe[title="reCAPTCHA"]');
+    const frame = await elementHandle.contentFrame();
+
+    await frame.waitForSelector('.recaptcha-checkbox-border');
+
+    const usernameInput = await page.waitForSelector('input[name="login"]');
+    await usernameInput.type(username);
+
+    const passwordInput = await page.waitForSelector('input[name="password"]');
+    await passwordInput.type(password);
+
+    await frame.click('.recaptcha-checkbox-border');
+    await frame.waitForSelector(".recaptcha-checkbox-checked", { timeout: 100000 });
+
+    await page.waitForTimeout(300);
+
+    await page.waitForSelector('button[type="submit"]');
+    await page.click('button[type="submit"]');
+
+    console.log("Logged in")
+    await page.close();
+  } catch (err) {
+    console.error(err)
+    return false;
+  }
+
+  return true;
+}
 
 const crawl = async (urlsToCrawl, options) => {
   let crawlResult = [];
@@ -88,18 +134,25 @@ const crawl = async (urlsToCrawl, options) => {
       "--disable-dev-shm-usage",
       "--disable-accelerated-2d-canvas",
       "--disable-gpu",
+      '--disable-web-security',
+      '--disable-features=IsolateOrigins,site-per-process',
       "--window-size=1920x1080"
     ]
   });
 
-  const processedUrls = new Set();
+  // await login(browser, options.username, options.password);
 
-  alreadyProcessedUrls = url => !processedUrls.has(url);
-  rightDomain = url => url.includes("r7.com")
+  const processedUrls = new Set();
+  const alreadyProcessedUrls = url => !processedUrls.has(url);
+  const correctDomain = url => options.domain ? url.includes(options.domain) : true;
+  const getScrappedPagesChildrenUrls = crawledPages => [...new Set(crawledPages
+    .filter(crawled => crawled && crawled.childrenUrls)
+    .flatMap(crawled => crawled.childrenUrls))];
+
   do {
     urls = urls
       .filter(alreadyProcessedUrls)
-    // .filter(rightDomain);
+      .filter(correctDomain);
 
     console.log(urls);
     crawledPages = await crawlSlicesConcurrent(

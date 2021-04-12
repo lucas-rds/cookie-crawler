@@ -4,20 +4,23 @@ const dealWithArgs = require("./args-dealer");
 const { connect, disconnect } = require("./src/database/database");
 
 (async () => {
-  // let { delay, urls } = dealWithArgs();
+  let { delay, urls, domain, username, password } = dealWithArgs();
   await connect();
 
-  let delay = 0
-  let urls = ["http://localhost:3000/A-1.html"]
+  // let delay = 0
+  // let urls = ["http://localhost:3000/A-1.html"]
   // let urls = ["https://www.r7.com/"]
 
   console.time("crawl");
   const options = {
-    cookiesWaitForTime: Number(delay)
+    cookiesWaitForTime: Number(delay),
+    domain,
+    username,
+    password
   };
 
-  const result = await crawler.crawl(urls, options);
-  await scrapToFile.write(result);
+  console.log(urls);
+  await crawler.crawl(urls, options);
 
   console.timeEnd("crawl");
   await disconnect();

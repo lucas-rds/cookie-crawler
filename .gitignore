@@ -1,3 +1,8 @@
 node_modules
 output.json
 /tools/dist
+dist/
+volumes/
+error.log
+log.log
+success.log
