@@ -12,7 +12,8 @@ const dealWithArgs = () => {
       delay: args.delay || 0,
       domain: args.domain.trim(),
       username: args.username,
-      password: args.password
+      password: args.password,
+      groupName: args.groupName,
     };
   } catch (error) {
     console.error(error);

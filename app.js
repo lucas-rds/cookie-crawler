@@ -4,7 +4,7 @@ const dealWithArgs = require("./args-dealer");
 const { connect, disconnect } = require("./src/database/database");
 
 (async () => {
-  let { delay, urls, domain, username, password } = dealWithArgs();
+  let { delay, urls, domain, username, password, groupName } = dealWithArgs();
   await connect();
 
   // let delay = 0
@@ -16,7 +16,8 @@ const { connect, disconnect } = require("./src/database/database");
     cookiesWaitForTime: Number(delay),
     domain,
     username,
-    password
+    password,
+    groupName
   };
 
   console.log(urls);

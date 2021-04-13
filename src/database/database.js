@@ -14,9 +14,9 @@ async function disconnect() {
     await client.close();
 }
 
-async function saveIntoDB(page) {
+async function saveIntoDB(page, collection) {
     const database = client.db('cookies');
-    const cookiesCollection = database.collection('cookies');
+    const cookiesCollection = database.collection(collection)
     await cookiesCollection.insertOne(page);
     console.log("Saved page into DB", page.url)
     return page;

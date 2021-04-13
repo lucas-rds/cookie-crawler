@@ -33,7 +33,7 @@ const crawlSlicesSync = async (urls, browser, options) => {
   const crawlers = urls.map(url =>
     pageCrawler.crawl(url, browser, options)
       .then(response => {
-        saveIntoDB(response)
+        saveIntoDB(response, options.groupName)
         return response;
       })
   );
@@ -60,7 +60,7 @@ const crawlSlicesConcurrent = async (
           })
           .then(response => {
             const page = { ...response, childrenUrls: [...new Set(response.childrenUrls)] }
-            return saveIntoDB(page)
+            return saveIntoDB(page, options.groupName)
           })
           .then(page => {
             fileLogger.info(page);

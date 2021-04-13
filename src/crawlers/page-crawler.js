@@ -13,7 +13,7 @@ const crawl = async (url, browser, scrapOptions) => {
       }
     });
 
-    await page.goto(url, { waitUntil: ["load", "networkidle0", "networkidle2"] });
+    await page.goto(url, { waitUntil: ["load", "networkidle0", "networkidle2"], timeout: 200000 });
     const scrappedPage = await pageScrapper.scrap(page, scrapOptions);
     await page.close();
 
