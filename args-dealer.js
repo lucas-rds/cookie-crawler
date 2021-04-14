@@ -10,10 +10,11 @@ const dealWithArgs = () => {
     return {
       urls: urls,
       delay: args.delay || 0,
-      domain: args.domain.trim(),
+      hostname: args.hostname.trim(),
       username: args.username,
       password: args.password,
       groupName: args.groupName,
+      poolSize: args.poolSize
     };
   } catch (error) {
     console.error(error);

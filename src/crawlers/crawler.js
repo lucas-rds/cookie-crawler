@@ -75,7 +75,7 @@ const crawlSlicesConcurrent = async (
     return promise;
   }
 
-  const promises = new Array(5).fill(Promise.resolve());
+  const promises = new Array(parseInt(options.poolSize)).fill(Promise.resolve());
   await Promise.all(promises.map(chain));
 
   return resolvedCawlers;
@@ -127,7 +127,7 @@ const crawl = async (urlsToCrawl, options) => {
   let urls = [...urlsToCrawl];
   let crawledPages;
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
@@ -144,7 +144,7 @@ const crawl = async (urlsToCrawl, options) => {
 
   const processedUrls = new Set();
   const alreadyProcessedUrls = url => !processedUrls.has(url);
-  const correctDomain = url => options.domain ? url.includes(options.domain) : true;
+  const correctDomain = url => options.hostname ? (new URL(url)).hostname.includes(options.hostname) : true;
   const getScrappedPagesChildrenUrls = crawledPages => [...new Set(crawledPages
     .filter(crawled => crawled && crawled.childrenUrls)
     .flatMap(crawled => crawled.childrenUrls))];

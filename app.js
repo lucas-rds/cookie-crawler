@@ -4,7 +4,7 @@ const dealWithArgs = require("./args-dealer");
 const { connect, disconnect } = require("./src/database/database");
 
 (async () => {
-  let { delay, urls, domain, username, password, groupName } = dealWithArgs();
+  let { delay, urls, domain, username, password, groupName, poolSize } = dealWithArgs();
   await connect();
 
   // let delay = 0
@@ -17,7 +17,8 @@ const { connect, disconnect } = require("./src/database/database");
     domain,
     username,
     password,
-    groupName
+    groupName,
+    poolSize
   };
 
   console.log(urls);
